@@ -257,7 +257,11 @@ public class WusageProcessor {
 			ent.setHits_st(temp1[4]);
 			ent.setBandwidth_st(temp1[5]);
 			ent.setLastVisit_st(temp1[6]);
-			rowEntities.add(ent);}
+			rowEntities.add(ent);
+			//If I ping the whois too fast it gets cranky
+			Thread.sleep(50);
+
+			}
 			else {
 				System.out.println(line);
 			}

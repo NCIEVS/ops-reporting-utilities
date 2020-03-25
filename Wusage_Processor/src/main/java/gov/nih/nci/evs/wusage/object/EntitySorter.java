@@ -54,7 +54,7 @@ public class EntitySorter {
 		Vector<String> domains = new Vector<String>();
 		Iterator<HostEntity> iter = entities.iterator();
 		while (iter.hasNext()){
-			String domain = iter.next().getDomain();
+			String domain = iter.next().getDomain().toLowerCase();
 			if (!domains.contains(domain)){
 				domains.add(domain);
 			}

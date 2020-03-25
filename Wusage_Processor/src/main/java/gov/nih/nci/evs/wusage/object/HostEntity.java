@@ -264,10 +264,15 @@ public class HostEntity implements Comparable<HostEntity>{
 		} catch (UnknownHostException e) {
 
 			// TODO Auto-generated catch block
+			System.out.println("Unknown Host "+ host);
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("IOException ");
+			e.printStackTrace();
+			return null;
+		} catch (Exception e){
 			e.printStackTrace();
 			return null;
 		}
