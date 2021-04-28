@@ -121,8 +121,8 @@ public class WusageProcessor {
 			Vector<HostEntity> entities = parseIntoHostEntities(hostArray);
 			
 			
-			ExcelHandler excelOut = new ExcelHandler(entities, "Hosts");
-			
+//			ExcelHandler excelOut = new ExcelHandler(entities, "Hosts");
+			ExcelHandler excelOut = new ExcelHandler(entities, server);
 			
 			
 			//Start processing top ten by bandwidth
