@@ -12,7 +12,7 @@ public class ConfigLoadedVS {
 
 //    public List<ValueSetEntry> valueSetEntryList = new ArrayList<ValueSetEntry>();
     public HashMap<String, String> valueSetURIMap = new HashMap<String,String>();
-    public HashMap<String, URL> valueSetExcelMap = new HashMap<String,URL>();
+    public HashMap<String, ValueSetEntry> valueSetExcelMap = new HashMap<String,ValueSetEntry>();
 
     public void parseLine(String line) throws URISyntaxException, MalformedURLException {
         String[] values = line.split("\\|");
@@ -21,7 +21,7 @@ public class ConfigLoadedVS {
         entry.uri = new URI(values[1]);
         if(!values[2].equalsIgnoreCase("null")) {
             entry.excelURL = new URL(values[2]);
-            valueSetExcelMap.put(entry.vsName,entry.excelURL);
+            valueSetExcelMap.put(entry.vsName,entry);
         }
         if(!values[3].equalsIgnoreCase("null")) {
             entry.page = values[3];

@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -240,10 +241,15 @@ public class VsConfigCompareApplication {
         //Loop through value set list and pick out any URL's that don't work
         System.out.println("------------------");
         for(String name: configLoadedVS.valueSetExcelMap.keySet()){
-            URL testURL = configLoadedVS.valueSetExcelMap.get(name);
+            ConfigLoadedVS.ValueSetEntry entry = configLoadedVS.valueSetExcelMap.get(name);
+            URL testURL = entry.excelURL;
+
 
             if(!isValidLink(testURL)){
-                String invalidLink = "URL is invalid for: "+ name + " URL:"+ testURL;
+                URI rawURI = entry.uri;
+                String path = rawURI.getPath();
+                String code = path.substring(path.lastIndexOf("/")+1);
+                String invalidLink = "URL is invalid for: "+code + "\t"+ name + "\tURL:"+ testURL;
                 badLinks.add(invalidLink);
                 System.out.println("URL is invalid for: "+ name + " URL:"+ testURL);
             }
