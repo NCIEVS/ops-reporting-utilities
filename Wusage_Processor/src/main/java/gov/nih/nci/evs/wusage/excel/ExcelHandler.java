@@ -75,12 +75,13 @@ public class ExcelHandler {
 		
 //		printTopTenHosts(entities);
 		printTopTwentyHosts(entities);
+		printAllEntities(entities);
 
 		closeWorkbook(workbookName);
 	}
 	
 	public void printTopTenHosts(Vector<HostEntity> entities){
-		//TODO print to a worksheet 
+
 //		private void processOrderByBandwidth(Vector<HostEntity> entities){
 			HashMap<String,Vector<HostEntity>> byDomain = EntitySorter.groupByDomain(entities);
 			Set<String> domainStringSet = byDomain.keySet();
@@ -92,13 +93,13 @@ public class ExcelHandler {
 				BandwidthComparator comp = new BandwidthComparator(tempMap);
 				TreeMap<String,Double> topTen = new TreeMap<String,Double>(comp);
 				topTen.putAll(tempMap);
-				printTopTenHostPage(topTen, domainString);
+				printHostPage(topTen, domainString, new Integer(10));
 			}
 			
 	}
 	
 	public void printTopTenHostPage(TreeMap<String,Double> topTen, String domain){
-		Sheet domainSheet = wb.createSheet(domain);
+		Sheet domainSheet = wb.createSheet(domain+" top 10");
 		DecimalFormat df = new DecimalFormat("0.00");
 		Set<String> hostSet = topTen.keySet();
 		Iterator<String> hostIter = hostSet.iterator();
@@ -139,24 +140,65 @@ public class ExcelHandler {
 				BandwidthComparator comp = new BandwidthComparator(tempMap);
 				TreeMap<String,Double> topTen = new TreeMap<String,Double>(comp);
 				topTen.putAll(tempMap);
-				printTopTwentyHostPage(topTen, domainString);
+				printHostPage(topTen, domainString, new Integer(20));
 			}
 			
 	}
-	
-	public void printTopTwentyHostPage(TreeMap<String,Double> topTen, String domain){
+
+	public void printAllEntities(Vector<HostEntity> entities){
+		HashMap<String,Vector<HostEntity>> byDomain = EntitySorter.groupByDomain(entities);
+		Set<String> domainStringSet = byDomain.keySet();
+		Iterator<String> byDomainIter = domainStringSet.iterator();
+		while(byDomainIter.hasNext()){
+			String domainString = byDomainIter.next();
+			HashMap<String,Vector<HostEntity>> byHostName = EntitySorter.groupByHostName(byDomain.get(domainString));
+			TreeMap<String,Double> tempMap = Calculator.calculateTopTen(byHostName);
+			BandwidthComparator comp = new BandwidthComparator(tempMap);
+			TreeMap<String,Double> topTen = new TreeMap<String,Double>(comp);
+			topTen.putAll(tempMap);
+			printAllHostPage(topTen, domainString);
+		}
+	}
+
+	public void printAllHostPage(TreeMap<String,Double> topTen, String domain){
 		Sheet domainSheet = wb.createSheet(domain);
 		DecimalFormat df = new DecimalFormat("0.00");
 		Set<String> hostSet = topTen.keySet();
 		Iterator<String> hostIter = hostSet.iterator();
-		
+
 		//create header row
 		Row rowHead = domainSheet.createRow(0);
 		rowHead.createCell(0).setCellValue("Name");
-		rowHead.createCell(1).setCellValue("Bandwidth"); 
-		
+		rowHead.createCell(1).setCellValue("Bandwidth");
+
 		int i=1;
-		
+
+		while(hostIter.hasNext()){
+			Row row = domainSheet.createRow(i);
+			String host = hostIter.next();
+			Double bandwidth = topTen.get(host);
+			String formatBandwidth = df.format(bandwidth);
+				row.createCell(0).setCellValue(host);
+				row.createCell(1).setCellValue(formatBandwidth);
+//			System.out.println(host + "  " + formatBandwidth + " MB");
+			i++;
+		}
+
+	}
+
+	public void printTopTwentyHostPage(TreeMap<String,Double> topTen, String domain){
+		Sheet domainSheet = wb.createSheet(domain+" top 20");
+		DecimalFormat df = new DecimalFormat("0.00");
+		Set<String> hostSet = topTen.keySet();
+		Iterator<String> hostIter = hostSet.iterator();
+
+		//create header row
+		Row rowHead = domainSheet.createRow(0);
+		rowHead.createCell(0).setCellValue("Name");
+		rowHead.createCell(1).setCellValue("Bandwidth");
+
+		int i=1;
+
 		while(hostIter.hasNext()){
 			Row row = domainSheet.createRow(i);
 			String host = hostIter.next();
@@ -170,7 +212,36 @@ public class ExcelHandler {
 			else{break;}
 			i++;
 		}
-		
+
+	}
+
+	public void printHostPage(TreeMap<String,Double> topTen, String domain, Integer numberToPrint){
+		Sheet domainSheet = wb.createSheet(domain +" top "+ numberToPrint);
+		DecimalFormat df = new DecimalFormat("0.00");
+		Set<String> hostSet = topTen.keySet();
+		Iterator<String> hostIter = hostSet.iterator();
+
+		//create header row
+		Row rowHead = domainSheet.createRow(0);
+		rowHead.createCell(0).setCellValue("Name");
+		rowHead.createCell(1).setCellValue("Bandwidth");
+
+		int i=1;
+
+		while(hostIter.hasNext()){
+			Row row = domainSheet.createRow(i);
+			String host = hostIter.next();
+			Double bandwidth = topTen.get(host);
+			String formatBandwidth = df.format(bandwidth);
+			if(i < numberToPrint){
+				row.createCell(0).setCellValue(host);
+				row.createCell(1).setCellValue(formatBandwidth);
+//			System.out.println(host + "  " + formatBandwidth + " MB");
+			}
+			else{break;}
+			i++;
+		}
+
 	}
 	
 	private void closeWorkbook(String workbookName){

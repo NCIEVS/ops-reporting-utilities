@@ -259,7 +259,7 @@ public class WusageProcessor {
 			ent.setLastVisit_st(temp1[6]);
 			rowEntities.add(ent);
 			//If I ping the whois too fast it gets cranky
-			Thread.sleep(50);
+			Thread.sleep(500);
 
 			}
 			else {
