@@ -15,7 +15,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.TreeSet;
 import org.json.simple.JSONObject;
@@ -182,6 +184,8 @@ public class VsConfigCompareApplication {
 
             writer.println("Value Set Config QA Report");
             writer.println("");
+            //Remove the three known cases
+            cleanUpErrorMessages();
             if (errorMessages.size() > 0) {
                 writer.println("Poor matches for Value Set URI");
                 for (String message : errorMessages) {
@@ -210,8 +214,8 @@ public class VsConfigCompareApplication {
                 writer.println("");
                 writer.println("______________________________");
             }
-
-
+            //Remove the one known case
+            cleanUpBadLinks();
             if (badLinks.size() > 0) {
                 writer.println("Value sets in config file with bad Excel file links");
                 for (String message : badLinks) {
@@ -249,6 +253,7 @@ public class VsConfigCompareApplication {
         }
         catch (IOException e) {
             System.out.println("Problem reading config file at " + this.configFilePath);
+            e.printStackTrace();
             loadSuccessful = false;
         }
         catch (URISyntaxException e) {
@@ -318,6 +323,55 @@ public class VsConfigCompareApplication {
         catch (Exception e) {
             return false;
         }
+    }
+
+    private void cleanUpErrorMessages(){
+        //There are three know value sets that appear as errors due to duplicate contibuting sources
+        //   These should be removed from the list
+        /**
+         * Poor match for CDISC SDTM Anatomical Location Terminology. local:http://evs.nci.nih
+         * .gov/valueset/CDISC/C74456 Lex:http://evs.nci.nih.gov/valueset/NICHD/C74456
+         * Poor match for CDISC SDTM Directionality Terminology. local:http://evs.nci.nih.gov/valueset/CDISC/C99074
+         * Lex:http://evs.nci.nih.gov/valueset/NICHD/C99074
+         * Poor match for CDISC SDTM Laterality Terminology. local:http://evs.nci.nih.gov/valueset/CDISC/C99073
+         * Lex:http://evs.nci.nih.gov/valueset/NICHD/C99073
+         */
+
+        //Hardcoding these as they haven't changed in years
+        List<String> removeErrors = new ArrayList<String>();
+        for(String error:errorMessages){
+            if(error.contains("NICHD/C74456")){
+                removeErrors.add(error);
+            }
+            if(error.contains("NICHD/C99074")){
+                removeErrors.add(error);
+            }
+            if(error.contains("NICHD/C99073")){
+                removeErrors.add(error);
+            }
+        }
+        for(String error:removeErrors){
+            errorMessages.remove(error);
+        }
+
+    }
+
+    private void cleanUpBadLinks(){
+        //For a weird reason there is a value set that they purposefully point to xls, which doesn't exist
+        //    This should be removed from the list
+        /**
+         * URL is invalid for: C124085	Geopolitical Entities, Names, and Codes Terminology	URL:ftp://ftp1.nci.nih
+         * .gov/pub/cacore/EVS/GENC/NCIt-GENC_Terminology.xls
+         */
+        //Hardcoding this because it is unique and weird and hopefully will never be repeated
+        String removeError = "";
+        for(String error:badLinks){
+            if(error.contains("GENC/NCIt-GENC_Terminology.xls")){
+                removeError = error;
+            }
+        }
+        badLinks.remove(removeError);
+
     }
 
 }
